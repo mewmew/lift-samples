@@ -2,11 +2,22 @@
 
 # Dagger
 #
-# *x86_64
+# * x86_64
 
 # llvm-mctoll
 #
-# *x86_64
+# * x86_64
+
+# RetDec
+#
+# * x86_32
+# * ARM_32
+# * MIPS_32
+# * PIC32
+# * PowerPC_32
+#
+# * x86_64
+
 
 
 ################################################################################
@@ -27,7 +38,56 @@ echo "=== [ x86_32 ] ===========================================================
 
 echo "--- [ add ] --------------------------------------------------------------------"
 
+echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret success (no main function to execute)
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `__decompiler_undefined_function_0'
+#
+./lift-retdec.sh -k -o x86_32/add/add.o.retdec.c x86_32/add/add.o >/dev/null
+rm -f x86_32/add/*.retdec.{bc,config.json,dsm}
+
+# - [SUCCESS] lift successful
+#
+# - [FAIL] interpret failure
+#
+#    LLVM ERROR: Cannot select: 0x558e3e8cfb30: ch,glue = X86ISD::CALL 0x558e3e8cfa60, 0x558e3e8cf788, RegisterMask:Untyped
+#      0x558e3e8cf788: i32 = X86ISD::Wrapper TargetGlobalAddress:i32<i32 ()* @__decompiler_undefined_function_0> 0
+#        0x558e3e8cf720: i32 = TargetGlobalAddress<i32 ()* @__decompiler_undefined_function_0> 0
+#      0x558e3e8cfac8: Untyped = RegisterMask
+#    In function: _init
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `__decompiler_undefined_function_0'
+#
+./lift-retdec.sh -k -o x86_32/add/main.retdec.c x86_32/add/main >/dev/null
+rm -f x86_32/add/*.retdec.{bc,config.json,dsm}
+
 echo "--- [ hello ] ------------------------------------------------------------------"
+
+echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+# - [SUCCESS] lift successful
+#
+# - [FAIL] interpret failure
+#
+#    LLVM ERROR: Cannot select: 0x56131b318a90: ch,glue = X86ISD::CALL 0x56131b3189c0, 0x56131b3186e8, RegisterMask:Untyped
+#      0x56131b3186e8: i32 = X86ISD::Wrapper TargetGlobalAddress:i32<i32 ()* @__decompiler_undefined_function_0> 0
+#        0x56131b318680: i32 = TargetGlobalAddress<i32 ()* @__decompiler_undefined_function_0> 0
+#      0x56131b318a28: Untyped = RegisterMask
+#    In function: _init
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `__decompiler_undefined_function_0'
+#
+./lift-retdec.sh -k -o x86_32/hello/main.retdec.c x86_32/hello/main >/dev/null
+rm -f x86_32/hello/*.retdec.{bc,config.json,dsm}
 
 
 
@@ -52,8 +112,7 @@ echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # - [SUCCESS] recompile success
 #
-# TODO: uncomment
-#./lift-dagger.sh x86_64/add/add.o > x86_64/add/add.dagger.ll
+./lift-dagger.sh x86_64/add/add.o > x86_64/add/add.o.dagger.ll
 
 # - [SUCCESS] lift successful
 #
@@ -63,8 +122,7 @@ echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    undefined reference to `llvm.dc.translate.at'
 #
-# TODO: uncomment
-#./lift-dagger.sh x86_64/add/main > x86_64/add/main.dagger.ll
+./lift-dagger.sh x86_64/add/main > x86_64/add/main.dagger.ll
 
 echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
@@ -72,7 +130,7 @@ echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    Raising x64 relocatable (.o) x64 binaries not supported
 #
-#./lift-llvm-mctoll.sh x86_64/add/add.o
+#./lift-llvm-mctoll.sh -o x86_64/add/add.o.llvm-mctoll.ll x86_64/add/add.o
 
 # - [FAIL] lift failure
 #
@@ -98,7 +156,31 @@ echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #    Stack dump:
 #    0.	Program arguments: /home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll x86_64/add/main
 #
-#./lift-llvm-mctoll.sh x86_64/add/main
+#./lift-llvm-mctoll.sh -o x86_64/add/main.llvm-mctoll.ll x86_64/add/main
+
+echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret success (no main function to execute)
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `__decompiler_undefined_function_0'
+#
+./lift-retdec.sh -k -o x86_64/add/add.o.retdec.c x86_64/add/add.o >/dev/null
+rm -f x86_64/add/*.retdec.{bc,config.json,dsm}
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret success (return value 42)
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `__decompiler_undefined_function_0'
+#
+./lift-retdec.sh -k -o x86_64/add/main.retdec.c x86_64/add/main >/dev/null
+rm -f x86_64/add/*.retdec.{bc,config.json,dsm}
 
 echo "--- [ hello ] ------------------------------------------------------------------"
 
@@ -126,8 +208,7 @@ echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    undefined reference to `llvm.dc.translate.at'
 #
-# TODO: uncomment
-#./lift-dagger.sh x86_64/hello/main > x86_64/hello/main.dagger.ll
+./lift-dagger.sh x86_64/hello/main > x86_64/hello/main.dagger.ll
 
 echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
@@ -139,4 +220,24 @@ echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # - [SUCCESS] recompile sucessful
 #
-#./lift-llvm-mctoll.sh -o x86_64/hello/main.llvm-mctoll.ll x86_64/hello/main
+./lift-llvm-mctoll.sh -o x86_64/hello/main.llvm-mctoll.ll x86_64/hello/main
+
+echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+# - [SUCCESS] lift successful
+#
+# - [FAIL] interpret failure
+#
+#    Stack dump:
+#    0.	Program arguments: lli x86_64/hello/main.retdec.ll
+#    #0 0x00007f52768f377b llvm::sys::PrintStackTrace(llvm::raw_ostream&) (/usr/bin/../lib/libLLVM-10.so+0x9e377b)
+#    #1 0x00007f52768f12d4 llvm::sys::RunSignalHandlers() (/usr/bin/../lib/libLLVM-10.so+0x9e12d4)
+#    #2 0x00007f52768f1429 (/usr/bin/../lib/libLLVM-10.so+0x9e1429)
+#    #3 0x00007f5275f02960 __restore_rt (/usr/bin/../lib/libpthread.so.0+0x14960)
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `__decompiler_undefined_function_0'
+#
+./lift-retdec.sh -k -o x86_64/hello/main.retdec.c x86_64/hello/main >/dev/null
+rm -f x86_64/hello/*.retdec.{bc,config.json,dsm}

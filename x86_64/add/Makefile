@@ -15,4 +15,5 @@ main: main.o add.o
 
 clean:
 	$(RM) -v add.o
+	$(RM) -v main.o
 	$(RM) -v main
