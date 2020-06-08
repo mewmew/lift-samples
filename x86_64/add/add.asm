@@ -1,6 +1,6 @@
-global add
+global add:function
 
-; int add(int x, int y)
+; long add(long x, long y)
 ;
 ;    rdi: x
 ;    rsi: y

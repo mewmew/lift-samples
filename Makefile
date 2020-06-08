@@ -13,5 +13,6 @@ clean:
 	make -C x86_64 clean
 	$(RM) -f */*/*.dagger.ll
 	$(RM) -f */*/*.llvm-mctoll.ll
-	$(RM) -f */*/*.retdec.ll
-	$(RM) -f */*/*.retdec.c
+	$(RM) -f */*/*.reopt.ll
+	$(RM) -f */*/*.retdec.{ll,c}
+	$(RM) -f */*/*.revng.ll

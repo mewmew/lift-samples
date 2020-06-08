@@ -1,4 +1,4 @@
-global add
+global add:function
 
 ; int __fastcall add(int x, int y)
 ;

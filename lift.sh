@@ -8,6 +8,10 @@
 #
 # * x86_64
 
+# --- [ reopt ] ----------------------------------------------------------------
+#
+# * x86_64
+
 # --- [ RetDec ] ---------------------------------------------------------------
 #
 # * x86_32
@@ -36,16 +40,17 @@
 
 
 
-echo "=== [ x86_32 ] ================================================================="
+echo -e "=== [ x86_32 ] =================================================================\n"
 
 # Lifters missing support for x86_32:
 #
 #    * Dagger
 #    * llvm-mctoll
+#    * reopt
 
-echo "--- [ add ] --------------------------------------------------------------------"
+echo -e "--- [ add ] --------------------------------------------------------------------\n"
 
-echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -55,6 +60,7 @@ echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    undefined reference to `__decompiler_undefined_function_0'
 #
+echo -e "Lifting x86_32/add/add.o\n"
 ./lift-retdec.sh -k -o x86_32/add/add.o.retdec.c x86_32/add/add.o >/dev/null
 rm -f x86_32/add/*.retdec.{bc,config.json,dsm}
 
@@ -72,10 +78,11 @@ rm -f x86_32/add/*.retdec.{bc,config.json,dsm}
 #
 #    undefined reference to `__decompiler_undefined_function_0'
 #
+echo -e "Lifting x86_32/add/main\n"
 ./lift-retdec.sh -k -o x86_32/add/main.retdec.c x86_32/add/main >/dev/null
 rm -f x86_32/add/*.retdec.{bc,config.json,dsm}
 
-echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -84,6 +91,8 @@ echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # - [FAIL] recompile failure (not self contained)
 #
 #    undefined reference to `cpu_x86_signal_handler'
+#
+echo -e "Lifting x86_32/add/add.o\n"
 ./lift-revng.sh x86_32/add/add.o x86_32/add/add.o.revng.ll
 rm -f x86_32/add/*.revng.*.csv
 
@@ -94,12 +103,14 @@ rm -f x86_32/add/*.revng.*.csv
 # - [FAIL] recompile failure (not self contained)
 #
 #    undefined reference to `cpu_x86_signal_handler'
+#
+echo -e "Lifting x86_32/add/main\n"
 ./lift-revng.sh x86_32/add/main x86_32/add/main.revng.ll
 rm -f x86_32/add/*.revng.*.csv
 
-echo "--- [ hello ] ------------------------------------------------------------------"
+echo -e "--- [ hello ] ------------------------------------------------------------------\n"
 
-echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -115,10 +126,11 @@ echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    undefined reference to `__decompiler_undefined_function_0'
 #
+echo -e "Lifting x86_32/hello/main\n"
 ./lift-retdec.sh -k -o x86_32/hello/main.retdec.c x86_32/hello/main >/dev/null
 rm -f x86_32/hello/*.retdec.{bc,config.json,dsm}
 
-echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -129,6 +141,7 @@ echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #    <inline asm>:1:12: error: instruction requires: 64-bit mode
 #            cld; rep; stosq
 #
+echo -e "Lifting x86_32/hello/main\n"
 ./lift-revng.sh x86_32/hello/main x86_32/hello/main.revng.ll
 rm -f x86_32/hello/*.revng.*.csv
 
@@ -143,11 +156,11 @@ rm -f x86_32/hello/*.revng.*.csv
 
 
 
-echo "=== [ x86_64 ] ================================================================="
+echo -e "=== [ x86_64 ] =================================================================\n"
 
-echo "--- [ add ] --------------------------------------------------------------------"
+echo -e "--- [ add ] --------------------------------------------------------------------\n"
 
-echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -155,6 +168,7 @@ echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # - [SUCCESS] recompile success
 #
+echo -e "Lifting x86_64/add/add.o\n"
 ./lift-dagger.sh x86_64/add/add.o > x86_64/add/add.o.dagger.ll
 
 # - [SUCCESS] lift successful
@@ -165,9 +179,10 @@ echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    undefined reference to `llvm.dc.translate.at'
 #
+echo -e "Lifting x86_64/add/main\n"
 ./lift-dagger.sh x86_64/add/main > x86_64/add/main.dagger.ll
 
-echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [FAIL] lift failure (no support for `*.o`)
 #
@@ -201,7 +216,27 @@ echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #./lift-llvm-mctoll.sh -o x86_64/add/main.llvm-mctoll.ll x86_64/add/main
 
-echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ reopt ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret success (no main function to execute)
+#
+# - [SUCCESS] recompile successful
+#
+echo -e "Lifting x86_64/add/add.o\n"
+./lift-reopt.sh --llvm --header x86_64/add/add.h -o x86_64/add/add.o.reopt.ll x86_64/add/add.o
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret success
+#
+# - [SUCCESS] recompile successful
+#
+echo -e "Lifting x86_64/add/main\n"
+./lift-reopt.sh --llvm --header x86_64/add/add.h --include add --include main -o x86_64/add/main.reopt.ll x86_64/add/main
+
+echo -e "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -211,6 +246,7 @@ echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    undefined reference to `__decompiler_undefined_function_0'
 #
+echo -e "Lifting x86_64/add/add.o\n"
 ./lift-retdec.sh -k -o x86_64/add/add.o.retdec.c x86_64/add/add.o >/dev/null
 rm -f x86_64/add/*.retdec.{bc,config.json,dsm}
 
@@ -222,10 +258,11 @@ rm -f x86_64/add/*.retdec.{bc,config.json,dsm}
 #
 #    undefined reference to `__decompiler_undefined_function_0'
 #
+echo -e "Lifting x86_64/add/main\n"
 ./lift-retdec.sh -k -o x86_64/add/main.retdec.c x86_64/add/main >/dev/null
 rm -f x86_64/add/*.retdec.{bc,config.json,dsm}
 
-echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -234,6 +271,8 @@ echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # - [FAIL] recompile failure (not self contained)
 #
 #    undefined reference to `cpu_x86_signal_handler'
+#
+echo -e "Lifting x86_64/add/add.o\n"
 ./lift-revng.sh x86_64/add/add.o x86_64/add/add.o.revng.ll
 rm -f x86_64/add/*.revng.*.csv
 
@@ -244,12 +283,14 @@ rm -f x86_64/add/*.revng.*.csv
 # - [FAIL] recompile failure (not self contained)
 #
 #    undefined reference to `cpu_x86_signal_handler'
+#
+echo -e "Lifting x86_64/add/main\n"
 ./lift-revng.sh x86_64/add/main x86_64/add/main.revng.ll
 rm -f x86_64/add/*.revng.*.csv
 
-echo "--- [ hello ] ------------------------------------------------------------------"
+echo -e "--- [ hello ] ------------------------------------------------------------------\n"
 
-echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -273,9 +314,10 @@ echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    undefined reference to `llvm.dc.translate.at'
 #
+echo -e "Lifting x86_64/hello/main\n"
 ./lift-dagger.sh x86_64/hello/main > x86_64/hello/main.dagger.ll
 
-echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -285,9 +327,10 @@ echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # - [SUCCESS] recompile sucessful
 #
+echo -e "Lifting x86_64/hello/main\n"
 ./lift-llvm-mctoll.sh -o x86_64/hello/main.llvm-mctoll.ll x86_64/hello/main
 
-echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -304,10 +347,11 @@ echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    undefined reference to `__decompiler_undefined_function_0'
 #
+echo -e "Lifting x86_64/hello/main\n"
 ./lift-retdec.sh -k -o x86_64/hello/main.retdec.c x86_64/hello/main >/dev/null
 rm -f x86_64/hello/*.retdec.{bc,config.json,dsm}
 
-echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful
 #
@@ -316,5 +360,6 @@ echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # - [FAIL] recompile failure (not self contained)
 #
 #    undefined reference to `cpu_x86_signal_handler'
+echo -e "Lifting x86_64/hello/main\n"
 ./lift-revng.sh x86_64/hello/main x86_64/hello/main.revng.ll
 rm -f x86_64/hello/*.revng.*.csv

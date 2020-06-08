@@ -1,5 +1,5 @@
-int add(int x, int y);
+long add(long x, long y);
 
-int main(int argc, char **argv) {
+int main() {
 	return add(10, 32);
 }
