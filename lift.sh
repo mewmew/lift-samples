@@ -1,20 +1,27 @@
 #!/bin/bash
 
-# Dagger
+# --- [ Dagger ] ---------------------------------------------------------------
 #
 # * x86_64
 
-# llvm-mctoll
+# --- [ llvm-mctoll ] ----------------------------------------------------------
 #
 # * x86_64
 
-# RetDec
+# --- [ RetDec ] ---------------------------------------------------------------
 #
 # * x86_32
 # * ARM_32
 # * MIPS_32
 # * PIC32
 # * PowerPC_32
+#
+# * x86_64
+
+# --- [ rev.ng ] ---------------------------------------------------------------
+#
+# * ARM
+# * MIPS
 #
 # * x86_64
 
@@ -68,6 +75,28 @@ rm -f x86_32/add/*.retdec.{bc,config.json,dsm}
 ./lift-retdec.sh -k -o x86_32/add/main.retdec.c x86_32/add/main >/dev/null
 rm -f x86_32/add/*.retdec.{bc,config.json,dsm}
 
+echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (no main function in lifted IR)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    undefined reference to `cpu_x86_signal_handler'
+./lift-revng.sh x86_32/add/add.o x86_32/add/add.o.revng.ll
+rm -f x86_32/add/*.revng.*.csv
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (no main function in lifted IR)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    undefined reference to `cpu_x86_signal_handler'
+./lift-revng.sh x86_32/add/main x86_32/add/main.revng.ll
+rm -f x86_32/add/*.revng.*.csv
+
 echo "--- [ hello ] ------------------------------------------------------------------"
 
 echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -88,6 +117,20 @@ echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 ./lift-retdec.sh -k -o x86_32/hello/main.retdec.c x86_32/hello/main >/dev/null
 rm -f x86_32/hello/*.retdec.{bc,config.json,dsm}
+
+echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (no main function in lifted IR)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    <inline asm>:1:12: error: instruction requires: 64-bit mode
+#            cld; rep; stosq
+#
+./lift-revng.sh x86_32/hello/main x86_32/hello/main.revng.ll
+rm -f x86_32/hello/*.revng.*.csv
 
 
 
@@ -182,6 +225,28 @@ rm -f x86_64/add/*.retdec.{bc,config.json,dsm}
 ./lift-retdec.sh -k -o x86_64/add/main.retdec.c x86_64/add/main >/dev/null
 rm -f x86_64/add/*.retdec.{bc,config.json,dsm}
 
+echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (no main function in lifted IR)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    undefined reference to `cpu_x86_signal_handler'
+./lift-revng.sh x86_64/add/add.o x86_64/add/add.o.revng.ll
+rm -f x86_64/add/*.revng.*.csv
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (no main function in lifted IR)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    undefined reference to `cpu_x86_signal_handler'
+./lift-revng.sh x86_64/add/main x86_64/add/main.revng.ll
+rm -f x86_64/add/*.revng.*.csv
+
 echo "--- [ hello ] ------------------------------------------------------------------"
 
 echo "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -241,3 +306,15 @@ echo "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 ./lift-retdec.sh -k -o x86_64/hello/main.retdec.c x86_64/hello/main >/dev/null
 rm -f x86_64/hello/*.retdec.{bc,config.json,dsm}
+
+echo "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (no main function in lifted IR)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    undefined reference to `cpu_x86_signal_handler'
+./lift-revng.sh x86_64/hello/main x86_64/hello/main.revng.ll
+rm -f x86_64/hello/*.revng.*.csv
