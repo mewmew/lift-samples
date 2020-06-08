@@ -330,6 +330,35 @@ echo -e "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 echo -e "Lifting x86_64/hello/main\n"
 ./lift-llvm-mctoll.sh -o x86_64/hello/main.llvm-mctoll.ll x86_64/hello/main
 
+echo -e "~~~ [ reopt ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [SUCCESS] lift successful (for statically compiled binary)
+#
+# - [FAIL] interpret failure (using char* address as integer in call to printf)
+#
+#    %t0 = call i64 (i64, ...) @printf(i64 4726788)
+#
+#    Stack dump:
+#    0.	Program arguments: lli x86_64/hello/main_static.reopt.ll
+#     #0 0x00007fdb392b777b llvm::sys::PrintStackTrace(llvm::raw_ostream&) (/usr/bin/../lib/libLLVM-10.so+0x9e377b)
+#     #1 0x00007fdb392b52d4 llvm::sys::RunSignalHandlers() (/usr/bin/../lib/libLLVM-10.so+0x9e12d4)
+#     #2 0x00007fdb392b5429 (/usr/bin/../lib/libLLVM-10.so+0x9e1429)
+#     #3 0x00007fdb388c6960 __restore_rt (/usr/bin/../lib/libpthread.so.0+0x14960)
+#     #4 0x00007fdb386700fc __strchrnul_avx2 (/usr/bin/../lib/libc.so.6+0x1620fc)
+#     #5 0x00007fdb38578a53 __vfprintf_internal (/usr/bin/../lib/libc.so.6+0x6aa53)
+#     #6 0x00007fdb38565a2f printf (/usr/bin/../lib/libc.so.6+0x57a2f)
+#     #7 0x00007fdb3dcfb014
+#     #8 0x00007fdb3ac48396 llvm::MCJIT::runFunction(llvm::Function*, llvm::ArrayRef<llvm::GenericValue>) (/usr/bin/../lib/libLLVM-10.so+0x2374396)
+#     #9 0x00007fdb3abedf05 llvm::ExecutionEngine::runFunctionAsMain(llvm::Function*, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, char const* const*) (/usr/bin/../lib/libLLVM-10.so+0x2319f05)
+#    #10 0x000056178175cdcd main (/usr/bin/lli+0x1ddcd)
+#    #11 0x00007fdb38535002 __libc_start_main (/usr/bin/../lib/libc.so.6+0x27002)
+#    #12 0x000056178175e53e _start (/usr/bin/lli+0x1f53e)
+#
+# - [SUCCESS] recompile successful (but invalid source)
+#
+echo -e "Lifting x86_64/hello/main_static\n"
+./lift-reopt.sh --llvm --header x86_64/hello/hello.h --include main -o x86_64/hello/main_static.reopt.ll x86_64/hello/main_static
+
 echo -e "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [SUCCESS] lift successful

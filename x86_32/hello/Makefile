@@ -1,4 +1,4 @@
-all: hello.o main
+all: hello.o main main_static
 
 CFLAGS=-g -m32
 
@@ -8,8 +8,12 @@ CFLAGS=-g -m32
 main: hello.o
 	clang $(CFLAGS) -o $@ $^
 
+main_static: hello.o
+	clang -static $(CFLAGS) -o $@ $^
+
 .PHONY: all clean
 
 clean:
 	$(RM) -v hello.o
 	$(RM) -v main
+	$(RM) -v main_static

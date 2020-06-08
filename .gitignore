@@ -1,6 +1,7 @@
 *.ll
 *.o
 main
+main_static
 *.retdec.c
 *.dsm
 *.bc
