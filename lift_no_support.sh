@@ -18,6 +18,15 @@ echo -e "Lifting x86_32/add/add.o\n"
 echo -e "Lifting x86_32/add/main\n"
 ./lift-dagger.sh x86_32/add/main > x86_32/add/main.dagger.ll
 
+echo -e "~~~ [ Ghidra-to-LLVM ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [FAIL] lift failure (no support for x86_32)
+#
+#    tracking issue: https://github.com/toor-de-force/Ghidra-to-LLVM/issues/4
+#
+echo -e "Lifting x86_32/add/add.o\n"
+./lift-ghidra-to-llvm.sh -o x86_32/add/add.o.ghidra-to-llvm.ll x86_32/add/add.o >/dev/null
+
 echo "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 # - [FAIL] lift failure (no support for x86_32)

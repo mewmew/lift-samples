@@ -4,6 +4,10 @@
 #
 # * x86_64
 
+# --- [ Ghidra-to-LLVM ] -------------------------------------------------------
+#
+# * Ghidra P-code
+
 # --- [ llvm-mctoll ] ----------------------------------------------------------
 #
 # * x86_64
@@ -182,6 +186,41 @@ echo -e "Lifting x86_64/add/add.o\n"
 echo -e "Lifting x86_64/add/main\n"
 ./lift-dagger.sh x86_64/add/main > x86_64/add/main.dagger.ll
 
+echo -e "~~~ [ Ghidra-to-LLVM ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (correct execution when adding custom @main function invoking @add)
+#
+# - [SUCCESS] recompile successful
+#
+echo -e "Lifting x86_64/add/add.o\n"
+./lift-ghidra-to-llvm.sh -o x86_64/add/add.o.ghidra-to-llvm.ll x86_64/add/add.o >/dev/null
+
+# - [SUCCESS] lift successful
+#
+# - [FAIL] interpret failure
+#
+#    Stack dump:
+#    0.	Program arguments: lli x86_64/add/main.ghidra-to-llvm.ll
+#     #0 0x00007fd42dbc877b llvm::sys::PrintStackTrace(llvm::raw_ostream&) (/usr/bin/../lib/libLLVM-10.so+0x9e377b)
+#     #1 0x00007fd42dbc62d4 llvm::sys::RunSignalHandlers() (/usr/bin/../lib/libLLVM-10.so+0x9e12d4)
+#     #2 0x00007fd42dbc6429 (/usr/bin/../lib/libLLVM-10.so+0x9e1429)
+#     #3 0x00007fd42d1d7960 __restore_rt (/usr/bin/../lib/libpthread.so.0+0x14960)
+#     #4 0x00007fd42ad50637
+#     #5 0x00007fd42f5592eb llvm::MCJIT::runFunction(llvm::Function*, llvm::ArrayRef<llvm::GenericValue>) (/usr/bin/../lib/libLLVM-10.so+0x23742eb)
+#     #6 0x00007fd42f4fef05 llvm::ExecutionEngine::runFunctionAsMain(llvm::Function*, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, char const* const*) (/usr/bin/../lib/libLLVM-10.so+0x2319f05)
+#     #7 0x000055ce72d1fdcd main (/usr/bin/lli+0x1ddcd)
+#     #8 0x00007fd42ce46002 __libc_start_main (/usr/bin/../lib/libc.so.6+0x27002)
+#     #9 0x000055ce72d2153e _start (/usr/bin/lli+0x1f53e)
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `call_indirect'
+#
+echo -e "Lifting x86_64/add/main\n"
+./lift-ghidra-to-llvm.sh -o x86_64/add/main.ghidra-to-llvm.ll x86_64/add/main >/dev/null
+
 echo -e "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
 # - [FAIL] lift failure (no support for `*.o`)
@@ -316,6 +355,32 @@ echo -e "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 echo -e "Lifting x86_64/hello/main\n"
 ./lift-dagger.sh x86_64/hello/main > x86_64/hello/main.dagger.ll
+
+echo -e "~~~ [ Ghidra-to-LLVM ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [SUCCESS] lift successful
+#
+# - [FAIL] interpret failure
+#
+#    Stack dump:
+#    0.	Program arguments: lli x86_64/hello/main.ghidra-to-llvm.ll
+#     #0 0x00007fc3c4cad77b llvm::sys::PrintStackTrace(llvm::raw_ostream&) (/usr/bin/../lib/libLLVM-10.so+0x9e377b)
+#     #1 0x00007fc3c4cab2d4 llvm::sys::RunSignalHandlers() (/usr/bin/../lib/libLLVM-10.so+0x9e12d4)
+#     #2 0x00007fc3c4cab429 (/usr/bin/../lib/libLLVM-10.so+0x9e1429)
+#     #3 0x00007fc3c42bc960 __restore_rt (/usr/bin/../lib/libpthread.so.0+0x14960)
+#     #4 0x00007fc3c1e356e7
+#     #5 0x00007fc3c663e2eb llvm::MCJIT::runFunction(llvm::Function*, llvm::ArrayRef<llvm::GenericValue>) (/usr/bin/../lib/libLLVM-10.so+0x23742eb)
+#     #6 0x00007fc3c65e3f05 llvm::ExecutionEngine::runFunctionAsMain(llvm::Function*, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, char const* const*) (/usr/bin/../lib/libLLVM-10.so+0x2319f05)
+#     #7 0x0000561e2a3cadcd main (/usr/bin/lli+0x1ddcd)
+#     #8 0x00007fc3c3f2b002 __libc_start_main (/usr/bin/../lib/libc.so.6+0x27002)
+#     #9 0x0000561e2a3cc53e _start (/usr/bin/lli+0x1f53e)
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `call_indirect'
+#
+echo -e "Lifting x86_64/hello/main\n"
+./lift-ghidra-to-llvm.sh -o x86_64/hello/main.ghidra-to-llvm.ll x86_64/hello/main >/dev/null
 
 echo -e "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 
