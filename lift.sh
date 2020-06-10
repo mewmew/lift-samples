@@ -227,6 +227,8 @@ echo -e "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #    Raising x64 relocatable (.o) x64 binaries not supported
 #
+# TODO: uncomment when llvm-mctoll support `*.o` files
+#echo -e "Lifting x86_64/add/add.o\n"
 #./lift-llvm-mctoll.sh -o x86_64/add/add.o.llvm-mctoll.ll x86_64/add/add.o
 
 # - [FAIL] lift failure
@@ -253,6 +255,8 @@ echo -e "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #    Stack dump:
 #    0.	Program arguments: /home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll x86_64/add/main
 #
+# TODO: uncomment when llvm-mctoll support `*.o` files
+#echo -e "Lifting x86_64/add/main\n"
 #./lift-llvm-mctoll.sh -o x86_64/add/main.llvm-mctoll.ll x86_64/add/main
 
 echo -e "~~~ [ reopt ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
@@ -457,3 +461,193 @@ echo -e "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 echo -e "Lifting x86_64/hello/main\n"
 ./lift-revng.sh x86_64/hello/main x86_64/hello/main.revng.ll
 rm -f x86_64/hello/*.revng.*.csv
+
+echo -e "--- [ locals ] -----------------------------------------------------------------\n"
+
+echo -e "~~~ [ dagger ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [FAIL] lift failure
+#
+#    Inserting overlapping sections
+#    UNREACHABLE executed at /home/u/Desktop/lifters/dagger/lib/MC/MCAnalysis/MCObjectSymbolizer.cpp:473!
+#    #0 0x000055704982126b llvm::sys::PrintStackTrace(llvm::raw_ostream&) /home/u/Desktop/lifters/dagger/lib/Support/Unix/Signals.inc:398:22
+#    #1 0x00005570498212fe PrintStackTraceSignalHandler(void*) /home/u/Desktop/lifters/dagger/lib/Support/Unix/Signals.inc:462:1
+#    #2 0x000055704981f53d llvm::sys::RunSignalHandlers() /home/u/Desktop/lifters/dagger/lib/Support/Signals.cpp:49:19
+#    #3 0x0000557049820ada SignalHandler(int) /home/u/Desktop/lifters/dagger/lib/Support/Unix/Signals.inc:252:1
+#    #4 0x00007fdc60a23960 __restore_rt (/usr/lib/libpthread.so.0+0x14960)
+#    #5 0x00007fdc604aa355 raise (/usr/lib/libc.so.6+0x3c355)
+#    #6 0x00007fdc60493853 abort (/usr/lib/libc.so.6+0x25853)
+#    #7 0x00005570497a8a40 bindingsErrorHandler(void*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool) /home/u/Desktop/lifters/dagger/lib/Support/ErrorHandling.cpp:127:55
+#    #8 0x000055704967eb7e llvm::MCObjectSymbolizer::buildSectionList(std::function<bool (llvm::object::SectionRef)>) /home/u/Desktop/lifters/dagger/lib/MC/MCAnalysis/MCObjectSymbolizer.cpp:474:45
+#    #9 0x000055704967da24 llvm::MCObjectSymbolizer::MCObjectSymbolizer(llvm::MCContext&, std::unique_ptr<llvm::MCRelocationInfo, std::default_delete<llvm::MCRelocationInfo> >, llvm::object::ObjectFile const&, std::function<bool (llvm::object::SectionRef)>) /home/u/Desktop/lifters/dagger/lib/MC/MCAnalysis/MCObjectSymbolizer.cpp:274:19
+#    #10 0x000055704967d7fe llvm::MCELFObjectSymbolizer::MCELFObjectSymbolizer(llvm::MCContext&, std::unique_ptr<llvm::MCRelocationInfo, std::default_delete<llvm::MCRelocationInfo> >, llvm::object::ELFObjectFileBase const&) /home/u/Desktop/lifters/dagger/lib/MC/MCAnalysis/MCObjectSymbolizer.cpp:248:15
+#    #11 0x000055704967ede4 llvm::createMCObjectSymbolizer(llvm::MCContext&, llvm::object::ObjectFile const&, std::unique_ptr<llvm::MCRelocationInfo, std::default_delete<llvm::MCRelocationInfo> >&&) /home/u/Desktop/lifters/dagger/lib/MC/MCAnalysis/MCObjectSymbolizer.cpp:492:66
+#    #12 0x0000557048e91a34 llvm::Target::createMCObjectSymbolizer(llvm::MCContext&, llvm::object::ObjectFile const&, std::unique_ptr<llvm::MCRelocationInfo, std::default_delete<llvm::MCRelocationInfo> >&&) const /home/u/Desktop/lifters/dagger/include/llvm/Support/TargetRegistry.h:597:3
+#    #13 0x0000557048e8ef4f main /home/u/Desktop/lifters/dagger/tools/llvm-dec/llvm-dec.cpp:178:75
+#    #14 0x00007fdc60495002 __libc_start_main (/usr/lib/libc.so.6+0x27002)
+#    #15 0x0000557048e8e0fe _start (/home/u/Desktop/lifters/dagger/build/bin/llvm-dec+0x2380fe)
+#    Stack dump:
+#    0.	Program arguments: /home/u/Desktop/lifters/dagger/build/bin/llvm-dec x86_64/locals/locals.o
+#
+# TODO: uncomment when issue resolved upstream in Dagger
+echo -e "Lifting x86_64/locals/locals.o\n"
+./lift-dagger.sh x86_64/locals/locals.o > x86_64/locals/locals.o.dagger.ll
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret success (return value 42)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    undefined reference to `llvm.dc.translate.at'
+#
+echo -e "Lifting x86_64/locals/main\n"
+./lift-dagger.sh x86_64/locals/main > x86_64/locals/main.dagger.ll
+
+echo -e "~~~ [ Ghidra-to-LLVM ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [FAIL] lift failure
+#
+#    Traceback (most recent call last):
+#      File "/home/u/Desktop/lifters/Ghidra-to-LLVM/g2llvm.py", line 49, in <module>
+#        module = xmltollvm.lift(xmlfile)
+#      File "/home/u/Desktop/lifters/Ghidra-to-LLVM/src/xmltollvm.py", line 70, in lift
+#        populate_func(ir_func, function)
+#      File "/home/u/Desktop/lifters/Ghidra-to-LLVM/src/xmltollvm.py", line 79, in populate_func
+#        populate_cfg(function, builders, blocks)
+#      File "/home/u/Desktop/lifters/Ghidra-to-LLVM/src/xmltollvm.py", line 283, in populate_cfg
+#        result = builder.uadd_with_overflow(lhs, rhs)
+#      File "/home/u/.local/lib/python3.8/site-packages/llvmlite/ir/builder.py", line 37, in wrapped
+#        raise ValueError("Operands must be the same type, got (%s, %s)"
+#    ValueError: Operands must be the same type, got (i64, i8*)
+#
+# TODO: uncomment when issue resolved upstream in Ghidra-to-LLVM
+#echo -e "Lifting x86_64/locals/locals.o\n"
+#./lift-ghidra-to-llvm.sh -o x86_64/locals/locals.o.ghidra-to-llvm.ll x86_64/locals/locals.o >/dev/null
+
+# - [FAIL] lift failure
+#
+#    Traceback (most recent call last):
+#      File "/home/u/Desktop/lifters/Ghidra-to-LLVM/g2llvm.py", line 49, in <module>
+#        module = xmltollvm.lift(xmlfile)
+#      File "/home/u/Desktop/lifters/Ghidra-to-LLVM/src/xmltollvm.py", line 70, in lift
+#        populate_func(ir_func, function)
+#      File "/home/u/Desktop/lifters/Ghidra-to-LLVM/src/xmltollvm.py", line 79, in populate_func
+#        populate_cfg(function, builders, blocks)
+#      File "/home/u/Desktop/lifters/Ghidra-to-LLVM/src/xmltollvm.py", line 283, in populate_cfg
+#        result = builder.uadd_with_overflow(lhs, rhs)
+#      File "/home/u/.local/lib/python3.8/site-packages/llvmlite/ir/builder.py", line 37, in wrapped
+#        raise ValueError("Operands must be the same type, got (%s, %s)"
+#    ValueError: Operands must be the same type, got (i64, i8*)
+#
+# TODO: uncomment when issue resolved upstream in Ghidra-to-LLVM
+#echo -e "Lifting x86_64/locals/main\n"
+#./lift-ghidra-to-llvm.sh -o x86_64/locals/main.ghidra-to-llvm.ll x86_64/locals/main >/dev/null
+
+echo -e "~~~ [ llvm-mctoll ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [FAIL] lift failure
+#
+#    llvm-mctoll: /home/u/Desktop/lifters/llvm-mctoll/llvm-project/llvm/tools/llvm-mctoll/X86/X86MachineInstructionRaiser.cpp:2550: bool X86MachineInstructionRaiser::raiseMemRefMachineInstr(const llvm::MachineInstr&): Assertion `false && "Unhandled memory referencing instruction"' failed.
+#     #0 0x00005631a39d443a llvm::sys::PrintStackTrace(llvm::raw_ostream&) (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0xc4e43a)
+#     #1 0x00005631a39d24e4 llvm::sys::RunSignalHandlers() (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0xc4c4e4)
+#     #2 0x00005631a39d2628 SignalHandler(int) (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0xc4c628)
+#     #3 0x00007f1c15395960 __restore_rt (/usr/lib/libpthread.so.0+0x14960)
+#     #4 0x00007f1c14e1c355 raise (/usr/lib/libc.so.6+0x3c355)
+#     #5 0x00007f1c14e05853 abort (/usr/lib/libc.so.6+0x25853)
+#     #6 0x00007f1c14e05727 _nl_load_domain.cold (/usr/lib/libc.so.6+0x25727)
+#     #7 0x00007f1c14e14936 (/usr/lib/libc.so.6+0x34936)
+#     #8 0x00005631a39e7140 X86MachineInstructionRaiser::raiseMemRefMachineInstr(llvm::MachineInstr const&) (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0xc61140)
+#     #9 0x00005631a39e8d8e X86MachineInstructionRaiser::raiseMachineFunction() (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0xc62d8e)
+#    #10 0x00005631a2f8686a MachineFunctionRaiser::runRaiserPasses() (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0x20086a)
+#    #11 0x00005631a2f8690c ModuleRaiser::runMachineFunctionPasses() (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0x20090c)
+#    #12 0x00005631a2f48be8 DisassembleObject(llvm::object::ObjectFile const*, bool) (.constprop.0) (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0x1c2be8)
+#    #13 0x00005631a2f0668f main (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0x18068f)
+#    #14 0x00007f1c14e07002 __libc_start_main (/usr/lib/libc.so.6+0x27002)
+#    #15 0x00005631a2f35c6e _start (/home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll+0x1afc6e)
+#    PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+#    Stack dump:
+#    0.	Program arguments: /home/u/Desktop/lifters/llvm-mctoll/llvm-project/build/bin/llvm-mctoll -o x86_64/locals/main.llvm-mctoll.ll x86_64/locals/main
+#
+# TODO: uncomment when issue resolved upstream in llvm-mctoll
+#echo -e "Lifting x86_64/locals/main\n"
+#./lift-llvm-mctoll.sh -o x86_64/locals/main.llvm-mctoll.ll x86_64/locals/main
+
+echo -e "~~~ [ reopt ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [FAIL] lift failure
+#
+#    Could not recover function main:
+#      segment1+0x60: Call targets must be direct calls.
+#    1 error occured.
+#
+# TODO: uncomment when issue resolved upstream in reopt
+#echo -e "Lifting x86_64/locals/locals.o\n"
+#./lift-reopt.sh --llvm --header x86_64/locals/locals.h -o x86_64/locals/locals.o.reopt.ll x86_64/locals/locals.o
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret success (return value 42)
+#
+# - [SUCCESS] recompile successful
+#
+echo -e "Lifting x86_64/locals/main\n"
+./lift-reopt.sh --llvm --header x86_64/locals/locals.h --include locals --include main -o x86_64/locals/main.reopt.ll x86_64/locals/main
+
+echo -e "~~~ [ retdec ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [SUCCESS] lift successful
+#
+# - [FAIL] interpret failure
+#
+#    0.	Program arguments: lli x86_64/locals/locals.o.retdec.ll
+#    #0 0x00007f9ca20f977b llvm::sys::PrintStackTrace(llvm::raw_ostream&) (/usr/bin/../lib/libLLVM-10.so+0x9e377b)
+#    #1 0x00007f9ca20f72d4 llvm::sys::RunSignalHandlers() (/usr/bin/../lib/libLLVM-10.so+0x9e12d4)
+#    #2 0x00007f9ca20f7429 (/usr/bin/../lib/libLLVM-10.so+0x9e1429)
+#    #3 0x00007f9ca1708960 __restore_rt (/usr/bin/../lib/libpthread.so.0+0x14960)
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `__decompiler_undefined_function_0'
+#
+echo -e "Lifting x86_64/locals/locals.o\n"
+./lift-retdec.sh -k -o x86_64/locals/locals.o.retdec.c x86_64/locals/locals.o >/dev/null
+rm -f x86_64/locals/*.retdec.{bc,config.json,dsm}
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret success (return value 42)
+#
+# - [FAIL] recompile failure
+#
+#    undefined reference to `__decompiler_undefined_function_0'
+#
+echo -e "Lifting x86_64/locals/main\n"
+./lift-retdec.sh -k -o x86_64/locals/main.retdec.c x86_64/locals/main >/dev/null
+rm -f x86_64/locals/*.retdec.{bc,config.json,dsm}
+
+echo -e "~~~ [ rev.ng ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (no main function in lifted IR)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    undefined reference to `cpu_x86_signal_handler'
+#
+echo -e "Lifting x86_64/locals/locals.o\n"
+./lift-revng.sh x86_64/locals/locals.o x86_64/locals/locals.o.revng.ll
+rm -f x86_64/locals/*.revng.*.csv
+
+# - [SUCCESS] lift successful
+#
+# - [SUCCESS] interpret successful (no main function in lifted IR)
+#
+# - [FAIL] recompile failure (not self contained)
+#
+#    undefined reference to `cpu_x86_signal_handler'
+#
+echo -e "Lifting x86_64/locals/main\n"
+./lift-revng.sh x86_64/locals/main x86_64/locals/main.revng.ll
+rm -f x86_64/locals/*.revng.*.csv
